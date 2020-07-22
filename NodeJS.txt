@@ -1,0 +1,39 @@
+# 安装 npm
+apt install npm
+
+# 初始化 npm
+npm init -y
+
+# 安装 koa
+ npm i koa -S
+
+ # 创建 app.js
+ vi app.js
+
+ # ctrl c + ctrl v
+const Koa = require('koa')
+const app = new Koa()
+const port = 3000
+
+app.use(ctx => {
+  ctx.body = 'Hello NodeJS!!!'
+})
+
+app.listen(port, () => console.log('app listening port by', port))
+
+# 创建 Dockerfile
+vi Dockerfile
+
+ # ctrl c + ctrl v
+ FROM node:10-alpine
+ ADD . /app/
+ WORKDIR /app
+ RUN npm i
+ EXPOSE 3000
+ CMD ["node", "app.js"]
+
+ # 定制 docker
+ docker build -t mynode .
+
+# 运行 docker
+docker run -p 3000:3000 mynode

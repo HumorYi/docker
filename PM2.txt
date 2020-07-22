@@ -1,0 +1,55 @@
+# Pm2 - 利用多核资源
+
+# 进入 docker 目录
+cd source/docker/
+
+# 将 node 拷贝到 pm2 目录
+cp -R node pm2
+
+# 进入 pm2 目录
+cd pm2
+
+# 创建 doker 忽略文件 .dockerignore
+vi .dockerignore
+
+# ctrl c + ctrl v
+node_modules
+
+# 创建 docker 描述文件
+vi process.yml
+
+# ctrl c + ctrl v
+# 描述
+apps:
+	# 执行脚本
+	- script: app.js
+		# 使用线程数量
+		instances: 2
+		# 是否监听
+		watch: true
+		# 环境配置
+		env :
+	  	NODE_ENV: production
+
+# 编辑 Dockerfile 文件
+vi Dockerfile
+
+# ctrl c + ctrl v
+# 使用 pm2 镜像
+FROM keymetrics/pm2:latest-alpine
+# 工作目录，即程序运行目录
+WORKDIR /usr/src/app
+# 将当前目录 添加到 指定目录
+ADD . /usr/src/app
+# 执行命令
+RUN npm config set registry https://registry.npm.taobao.org/ && npm i
+# 暴露端口
+EXPOSE 3000
+#pm2在docker中使用命令为pm2-docker
+CMD ["pm2-runtime", "start", "process.yml"]
+
+# 定制镜像
+docker build -t mypm2 .
+
+# 运行镜像
+docker run -p 3000:3000 -d mypm2
